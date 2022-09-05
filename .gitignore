@@ -1,0 +1,5 @@
+/build
+/result
+/lean_packages/*
+!/lean_packages/manifest.json
+.direnv
