@@ -1,30 +1,6 @@
-class HasMem (α : outParam $ Type u) (β : Type v) where
-    mem : α → β → Prop
-
-infix:50 " ∈ " => HasMem.mem
-
-def Set (α : Type u) := α → Prop
-
-namespace Set
-
-variable {α : Type u}
-
-instance : HasMem α (Set α) := ⟨λ a s => s a⟩
-
-theorem ext {s t : Set α} (h : ∀ x, x ∈ s ↔ x ∈ t) : s = t :=
-  funext $ λ x=> propext $ h x
-
-namespace Set
-
-class Preorder (α : Type u) extends LE α where
-  le_refl  (a : α) : a ≤ a
-  le_trans {a b c : α} : a ≤ b → b ≤ c → a ≤ c
-
-class PartialOrder (α : Type u) extends LE α where
-  le_antisym (a b : α) : a ≤ b → b ≤ a → a = b
-
-class PartialOrder (α : Type u) extends LE α where
-  le_antisym (a b : α) : a ≤ b → b ≤ a → a = b
+import Mathlib.Init.Set
+import Mathlib.Init.Algebra.Order
+import Mathlib.Order.Basic
 
 class SUP (α : Type u) where
     sup : α → α → α
@@ -64,18 +40,9 @@ class CompleteLattice (α : Type u) extends Lattice α, TOP α, BOT α where
   infi_lb  : ∀ (s : Set α) (a : α), a ∈ s → infi s ≤ a
   infi_glb : ∀ (s : Set α) (a : α), (∀ (b : α), b ∈ s → a ≤ b) → a ≤ infi s
 
-instance {α : Type u} {β : α → Type v} [(a : α) → Preorder (β a)] : Preorder ((a : α) → β a) where
-  le f g := ∀ a, f a ≤ g a
-  le_refl f  := fun a => Preorder.le_refl (f a)
-  le_trans   := fun h₁ h₂ a => Preorder.le_trans (h₁ a) (h₂ a)
-
-instance {α : Type u} {β : α → Type v} [(a : α) → PartialOrder (β a)] : PartialOrder ((a : α) → β a) where
-  le f g := ∀ a, f a ≤ g a
-  le_antisym f g := fun h₁ h₂ => funext fun a => PartialOrder.le_antisym (f a) (g a) (h₁ a) (h₂ a)
-
 -- In Lean 3, we defined `monotone` using the strict implicit notation `{{ ... }}`.
 -- Implicit lambdas in Lean 4 allow us to use the regular `{...}`
-def Monotone [Preorder α] [Preorder β] (f : α → β) :=
+def monotone_pre [Preorder α] [Preorder β] (f : α → β) :=
   ∀ {a b}, a ≤ b → f a ≤ f b
 
 def galoisConnection {α β} [PartialOrder α] [PartialOrder β]
